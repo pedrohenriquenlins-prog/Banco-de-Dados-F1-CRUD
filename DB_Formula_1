@@ -1,1 +1,135 @@
-
+CREATE DATABASE maquin_f1;
+USE maquin_f1;
+CREATE TABLE tb_paises (
+ codigoP INT PRIMARY KEY,
+ nomeP VARCHAR(100) NOT NULL
+);
+CREATE TABLE tb_equipes (
+ sigla VARCHAR(10) PRIMARY KEY,
+ nomeE VARCHAR(100) NOT NULL,
+ cod_pais INT,
+ FOREIGN KEY (cod_pais) REFERENCES tb_paises(codigoP)
+);
+CREATE TABLE tb_pilotos (
+ numero INT PRIMARY KEY,
+ nomePI VARCHAR(100) NOT NULL,
+ cod_pais INT,
+ sigla_equipe VARCHAR(10),
+ FOREIGN KEY (cod_pais) REFERENCES tb_paises(codigoP),
+ FOREIGN KEY (sigla_equipe) REFERENCES tb_equipes(sigla)
+);
+CREATE TABLE tb_corridas (
+ sigla_gp VARCHAR(10) PRIMARY KEY,
+ nome_gp VARCHAR(100) NOT NULL,
+ cod_pais INT,
+ qtd_voltas INT,
+ FOREIGN KEY (cod_pais) REFERENCES tb_paises(codigoP)
+);
+CREATE TABLE tb_participantes (
+ sigla_gp VARCHAR(10),
+ num_piloto INT,
+ posicao_largada INT,
+ PRIMARY KEY (sigla_gp, num_piloto),
+ FOREIGN KEY (sigla_gp) REFERENCES tb_corridas(sigla_gp),
+ FOREIGN KEY (num_piloto) REFERENCES tb_pilotos(numero)
+);
+-- PAISES
+INSERT INTO tb_paises (codigoP, nomeP) VALUES
+(55, 'Brasil'),
+(64, 'Italia'),
+(67, 'Franca'),
+(45, 'Inglaterra'),
+(22, 'Jamaica'),
+(13, 'Holanda'),
+(35, 'Australia'),
+(1, 'Estados Unidos'),
+(49, 'Alemanha'),
+(81, 'Japao');
+-- EQUIPES
+INSERT INTO tb_equipes (sigla, nomeE, cod_pais) VALUES
+('RDR', 'Red Bull Racing', 13),
+('GDR', 'Guarana Driver Racing', 55),
+('MCL', 'Mclaren', 45),
+('HAS', 'Hass', 45),
+('MER', 'Mercedes', 49),
+('WIL', 'Wilians', 67),
+('FER', 'Ferrari', 64);
+-- PILOTOS
+INSERT INTO tb_pilotos (numero, nomePI, cod_pais, sigla_equipe) VALUES
+(1, 'Gabriel Bortoleto', 55, 'GDR'),
+(16, 'Jair Bolsonaro', 55, 'GDR'),
+(12, 'Roberto Carlos', 55, 'MCL'),
+('22', 'Fravio Bolsonabo', '55', 'FER'),
+('23', 'Juiz Infarto Lole', '55', 'HAS'),
+(44, 'Adalberto Ferreira junior', 13, 'RDR'),
+(81, 'Jailson Mendes', 67, 'WIL'),
+(13, 'Gomersindo Oliveira Pinto', 64, 'FER'),
+(55, 'Carlo Ancelot', 64, 'FER'),
+(21, 'Lomaine Ylamao', 45, 'HAS'),
+(4, 'Fred Merculis', 49, 'MER'),
+(15, 'Mbape Frinkeing', 64, 'MER'),
+(67, 'Kiravatchkela Oliver', 67, 'MCL');
+-- CORRIDAS
+INSERT INTO tb_corridas (sigla_gp, nome_gp, cod_pais, qtd_voltas) VALUES
+('BRA', 'GP do Brasil', 55, 63),
+('ITA', 'GP da Italia', 64, 61),
+('JAP', 'GP do Japao', 81, 67),
+('EUA', 'GP dos Estados Unidos', 1, 55),
+('ALM', 'GP da Alemanha', 49, 47),
+('FRA', 'GP da Franca', 67, 49);
+-- PARTICIPANTES CORRIGIDO - AGORA SÓ COM PILOTOS QUE EXISTEM
+INSERT INTO tb_participantes (sigla_gp, num_piloto, posicao_largada) VALUES
+('BRA', 1, 1),
+('BRA', 16, 2),
+('BRA', 13, 3),
+('BRA', 44, 4),
+('BRA', 55, 5),
+('BRA', 4, 6),
+('BRA', 81, 7),
+('BRA', 21, 8),
+('BRA', 15, 9),
+('BRA', 67, 10);
+INSERT INTO tb_participantes (sigla_gp, num_piloto, posicao_largada) VALUES
+('ITA', 16, 1),
+('ITA', 1, 2),
+('ITA', 55, 3),
+('ITA', 13, 4),
+('ITA', 4, 5),
+('ITA', 44, 6),
+('ITA', 81, 7),
+('ITA', 21, 8);
+ALTER TABLE tb_pilotos ADD salario DECIMAL(10,2);
+UPDATE tb_pilotos SET salario = 95000.00 WHERE numero = 1;
+UPDATE tb_pilotos SET salario = 70000.00 WHERE numero = 16;
+UPDATE tb_pilotos SET salario = 120000.00 WHERE numero = 44;
+UPDATE tb_pilotos SET salario = 65000.00 WHERE numero = 81;
+UPDATE tb_pilotos SET salario = 80000.00 WHERE numero = 13;
+UPDATE tb_pilotos SET salario = 80000.00 WHERE numero = 55;
+UPDATE tb_pilotos SET salario = 70000.00 WHERE numero = 21;
+UPDATE tb_pilotos SET salario = 100000.00 WHERE numero = 4;
+UPDATE tb_pilotos SET salario = 90000.00 WHERE numero = 15;
+UPDATE tb_pilotos SET salario = 72000.00 WHERE numero = 67;
+-- Queries
+select nomeP as 'Paises'
+from tb_paises
+where nomeP like "b%l";
+SELECT tb_pilotos.nomePI as 'Pilotos', tb_paises.nomeP as 'Paises'
+FROM tb_pilotos, tb_paises
+WHERE tb_pilotos.cod_pais = tb_paises.codigoP
+AND tb_paises.nomeP IN ('Brasil', 'Italia', 'Franca');
+select nomePI as 'Piloto'
+from tb_pilotos;
+-- Gp
+SELECT nome_gp AS Grande_Premio, qtd_voltas AS Voltas
+FROM tb_corridas;
+SELECT nomePI as 'Piloto', salario
+FROM tb_pilotos
+WHERE salario >= 70000 and salario <= 100000;
+-- media salarial
+SELECT cod_pais as 'Pais', round(AVG(salario),2) AS "Media Salarial"
+FROM tb_pilotos
+GROUP BY cod_pais;
+-- Valor salarial
+SELECT DISTINCT tb_pilotos.salario AS "Salarios"
+FROM tb_pilotos
+ORDER BY tb_pilotos.salario ASC;
